@@ -2,6 +2,7 @@ package br.com.radix.banco;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -15,6 +16,8 @@ import java.util.List;
 @Path("/banco")
 public class BancoController {
 
+    private List<Conta> contas = new ArrayList<>();
+
     @GET
     @Path("/conta")
     @Produces(MediaType.APPLICATION_JSON)
@@ -27,8 +30,12 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Conta obterConta(@PathParam("numero") Long numero) {
 
-        Conta conta = new Conta("cliente teste", numero, 0.0);
-        return conta;
+        for (Conta conta : this.contas) {
+            if (conta.getNumero().equals(numero)) {
+                return conta;
+            }
+        }
+        throw new NotFoundException();
     }
 
     @POST
