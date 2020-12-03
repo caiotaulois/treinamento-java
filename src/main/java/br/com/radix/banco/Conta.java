@@ -5,6 +5,9 @@ class Conta {
     private Long numero;
     private Double saldo;
 
+    public Conta() {
+    }
+
     public Conta(String cliente, Long numero, Double saldo) {
         this.cliente = cliente;
         this.numero = numero;

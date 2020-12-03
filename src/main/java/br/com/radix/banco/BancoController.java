@@ -41,9 +41,10 @@ public class BancoController {
     @POST
     @Path("/conta")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response criarConta() {
+    public Response criarConta(Conta conta) {
 
-        return null;
+        contas.add(conta);
+        return Response.ok().build();
     }
 
     @PUT
