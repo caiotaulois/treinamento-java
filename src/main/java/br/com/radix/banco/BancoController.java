@@ -4,7 +4,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +13,12 @@ public class BancoController {
     @GET
     @Path("/conta")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response listarContas() {
+    public List<Conta> listarContas() {
 
-        List<Integer> numeroContas = new ArrayList<>();
-        numeroContas.add(1);
-        numeroContas.add(2);
-        numeroContas.add(3);
-        return Response.ok(numeroContas).build();
+        List<Conta> contas = new ArrayList<>();
+        contas.add(new Conta("cliente 1", 1L, 10.0));
+        contas.add(new Conta("cliente 2", 2L, 20.0));
+        contas.add(new Conta("cliente 3", 3L, 30.0));
+        return contas;
     }
 }
