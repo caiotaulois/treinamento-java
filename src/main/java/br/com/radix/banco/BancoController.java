@@ -70,6 +70,16 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deletarConta(@PathParam("numero") Long numero) {
 
-        return null;
+        Conta contaExcluida = null;
+        for (Conta conta : contas) {
+            if (conta.getNumero().equals(numero)) {
+                contaExcluida = conta;
+            }
+        }
+        if (contaExcluida == null) {
+            throw new NotFoundException();
+        }
+        contas.remove(contaExcluida);
+        return Response.ok().build();
     }
 }
