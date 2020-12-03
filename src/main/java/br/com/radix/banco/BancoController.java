@@ -16,13 +16,13 @@ import java.util.List;
 @Path("/banco")
 public class BancoController {
 
-    private List<Conta> contas = new ArrayList<>();
+    private static List<Conta> contas = new ArrayList<>();
 
     @GET
     @Path("/conta")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Conta> listarContas() {
-        return this.contas;
+        return contas;
     }
 
     @GET
@@ -30,7 +30,7 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Conta obterConta(@PathParam("numero") Long numero) {
 
-        for (Conta conta : this.contas) {
+        for (Conta conta : contas) {
             if (conta.getNumero().equals(numero)) {
                 return conta;
             }
