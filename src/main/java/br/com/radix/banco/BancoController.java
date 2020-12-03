@@ -50,9 +50,19 @@ public class BancoController {
     @PUT
     @Path("/conta/{numero}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response atualizarConta(@PathParam("numero") Long numero) {
+    public Response editarConta(@PathParam("numero") Long numero, Conta requisicaoEditarConta) {
 
-        return null;
+        Conta contaEditada = null;
+        for (Conta conta : contas) {
+            if (conta.getNumero().equals(numero)) {
+                contaEditada = conta;
+            }
+        }
+        if (contaEditada == null) {
+            throw new NotFoundException();
+        }
+        contaEditada.atualizarDados(requisicaoEditarConta.getCliente(), requisicaoEditarConta.getSaldo());
+        return Response.ok().build();
     }
 
     @DELETE

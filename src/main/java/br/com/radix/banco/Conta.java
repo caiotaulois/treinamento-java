@@ -25,4 +25,9 @@ class Conta {
     public Double getSaldo() {
         return saldo;
     }
+
+    public void atualizarDados(String cliente, Double saldo) {
+        this.cliente = cliente;
+        this.saldo = saldo;
+    }
 }
