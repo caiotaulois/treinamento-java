@@ -18,12 +18,13 @@ import java.util.stream.Collectors;
 @Path("/banco")
 public class BancoController {
 
-    private static List<Conta> contas = new ArrayList<>();
+    private BancoService bancoService = new BancoService();
 
     @GET
     @Path("/conta")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ContaDTO> listarContas() {
+        List<Conta> contas = bancoService.listarContas();
         return contas.stream().map(ContaDTO::new).collect(Collectors.toList());
     }
 
@@ -32,11 +33,8 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public ContaDTO obterConta(@PathParam("numero") Long numero) {
 
-        Optional<Conta> contaEncontrada = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
-        if (contaEncontrada.isPresent()) {
-            return new ContaDTO(contaEncontrada.get());
-        }
-        throw new NotFoundException();
+        Conta conta = bancoService.obterConta(numero);
+        return new ContaDTO(conta);
     }
 
     @POST
@@ -44,7 +42,7 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response criarConta(CriaContaDTO dto) {
 
-        contas.add(dto.gerarConta());
+        bancoService.criarConta(dto.gerarConta());
         return Response.ok().build();
     }
 
@@ -53,8 +51,7 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response editarConta(@PathParam("numero") Long numero, EditarContaDTO dto) {
 
-        Optional<Conta> contaEditada = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
-        contaEditada.orElseThrow(NotFoundException::new).atualizarDados(dto.getCliente());
+        bancoService.editarConta(numero, dto.getCliente());
         return Response.ok().build();
     }
 
@@ -63,8 +60,7 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deletarConta(@PathParam("numero") Long numero) {
 
-        Optional<Conta> contaExcluida = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
-        contas.remove(contaExcluida.orElseThrow(NotFoundException::new));
+        bancoService.deletarConta(numero);
         return Response.ok().build();
     }
 
@@ -73,32 +69,15 @@ public class BancoController {
     @Produces(MediaType.APPLICATION_JSON)
     public List<OperacaoDTO> listarOperacoes(@PathParam("numero") Long numeroConta) {
 
-        Optional<Conta> contaEncontrada = contas.stream().filter(conta -> conta.getNumero().equals(numeroConta)).findFirst();
-        if (contaEncontrada.isPresent()) {
-            return contaEncontrada.get().getOperacoes().stream().map(OperacaoDTO::new).collect(Collectors.toList());
-        }
-        throw new NotFoundException();
+        List<Operacao> operacoes = bancoService.listarOperacoes(numeroConta);
+        return operacoes.stream().map(OperacaoDTO::new).collect(Collectors.toList());
     }
 
     @POST
     @Path("/operacao")
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizarOperacao(RealizarOperacaoDTO dto) {
-        Optional<Conta> contaOrigem = contas.stream().filter(conta -> conta.getNumero().equals(dto.getNumeroContaOrigem())).findFirst();
-        Optional<Conta> contaDestino = contas.stream().filter(conta -> conta.getNumero().equals(dto.getNumeroContaDestino())).findFirst();
-
-        if (!contaOrigem.isPresent()) {
-            throw new NotFoundException();
-        }
-        if (contaDestino.isPresent()) {
-            Operacao operacaoSaque = new Operacao(contaOrigem.get().getNumero(), contaDestino.get().getNumero(), -dto.getValor());
-            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacaoSaque));
-            Operacao operacaoDeposito = new Operacao(contaOrigem.get().getNumero(), contaDestino.get().getNumero(), dto.getValor());
-            contaDestino.ifPresent(conta -> conta.realizarOperacao(operacaoDeposito));
-        } else {
-            Operacao operacao = new Operacao(contaOrigem.get().getNumero(), null, dto.getValor());
-            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacao));
-        }
+        bancoService.realizarOperacao(dto.getNumeroContaOrigem(), dto.getNumeroContaDestino(), dto.getValor());
         return Response.ok().build();
     }
 }
