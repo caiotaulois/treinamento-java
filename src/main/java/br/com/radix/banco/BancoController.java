@@ -14,6 +14,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+class OperacaoRequest {
+    private Long numeroConta;
+    private Double valor;
+
+    public Long getNumeroConta() {
+        return numeroConta;
+    }
+
+    public Double getValor() {
+        return valor;
+    }
+}
+
 @Path("/banco")
 public class BancoController {
 
@@ -61,6 +74,15 @@ public class BancoController {
 
         Optional<Conta> contaExcluida = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
         contas.remove(contaExcluida.orElseThrow(NotFoundException::new));
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/operacao")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response realizarOperacao(OperacaoRequest operacaoRequest) {
+        Optional<Conta> contaOptional = contas.stream().filter(conta -> conta.getNumero().equals(operacaoRequest.getNumeroConta())).findFirst();
+        contaOptional.ifPresent(conta -> conta.realizarOperacao(operacaoRequest.getValor()));
         return Response.ok().build();
     }
 }

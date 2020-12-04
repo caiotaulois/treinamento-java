@@ -30,4 +30,8 @@ class Conta {
         this.cliente = cliente;
         this.saldo = saldo;
     }
+
+    public void realizarOperacao(Double operacao) {
+        this.saldo += operacao;
+    }
 }
