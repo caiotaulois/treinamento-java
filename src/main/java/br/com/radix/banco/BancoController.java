@@ -14,24 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-class OperacaoRequest {
-    private Long numeroContaOrigem;
-    private Long numeroContaDestino;
-    private Double valor;
-
-    public Long getNumeroContaOrigem() {
-        return numeroContaOrigem;
-    }
-
-    public Long getNumeroContaDestino() {
-        return numeroContaDestino;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-}
-
 @Path("/banco")
 public class BancoController {
 
@@ -68,7 +50,7 @@ public class BancoController {
     public Response editarConta(@PathParam("numero") Long numero, Conta requisicaoEditarConta) {
 
         Optional<Conta> contaEditada = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
-        contaEditada.orElseThrow(NotFoundException::new).atualizarDados(requisicaoEditarConta.getCliente(), requisicaoEditarConta.getSaldo());
+        contaEditada.orElseThrow(NotFoundException::new).atualizarDados(requisicaoEditarConta.getCliente());
         return Response.ok().build();
     }
 
@@ -82,18 +64,35 @@ public class BancoController {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/conta/{numero}/operacao")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Operacao> listarOperacoes(@PathParam("numero") Long numeroConta) {
+
+        Optional<Conta> contaEncontrada = contas.stream().filter(conta -> conta.getNumero().equals(numeroConta)).findFirst();
+        if (contaEncontrada.isPresent()) {
+            return contaEncontrada.get().getOperacoes();
+        }
+        throw new NotFoundException();
+    }
+
     @POST
     @Path("/operacao")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response realizarOperacao(OperacaoRequest operacaoRequest) {
-        Optional<Conta> contaOrigem = contas.stream().filter(conta -> conta.getNumero().equals(operacaoRequest.getNumeroContaOrigem())).findFirst();
-        Optional<Conta> contaDestino = contas.stream().filter(conta -> conta.getNumero().equals(operacaoRequest.getNumeroContaDestino())).findFirst();
+    public Response realizarOperacao(Operacao operacao) {
+        Optional<Conta> contaOrigem = contas.stream().filter(conta -> conta.getNumero().equals(operacao.getNumeroContaOrigem())).findFirst();
+        Optional<Conta> contaDestino = contas.stream().filter(conta -> conta.getNumero().equals(operacao.getNumeroContaDestino())).findFirst();
 
+        if (!contaOrigem.isPresent()) {
+            throw new NotFoundException();
+        }
         if (contaDestino.isPresent()) {
-            contaOrigem.ifPresent(conta -> conta.realizarOperacao(-operacaoRequest.getValor()));
-            contaDestino.ifPresent(conta -> conta.realizarOperacao(operacaoRequest.getValor()));
+            Operacao operacaoSaque = new Operacao(contaOrigem.get().getNumero(), contaDestino.get().getNumero(), -operacao.getValor());
+            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacaoSaque));
+            Operacao operacaoDeposito = new Operacao(contaOrigem.get().getNumero(), contaDestino.get().getNumero(), operacao.getValor());
+            contaDestino.ifPresent(conta -> conta.realizarOperacao(operacaoDeposito));
         } else {
-            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacaoRequest.getValor()));
+            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacao));
         }
         return Response.ok().build();
     }

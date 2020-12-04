@@ -1,17 +1,21 @@
 package br.com.radix.banco;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class Conta {
     private String cliente;
     private Long numero;
-    private Double saldo;
+    private List<Operacao> operacoes;
 
     public Conta() {
+        this.operacoes = new ArrayList<>();
     }
 
-    public Conta(String cliente, Long numero, Double saldo) {
+    public Conta(String cliente, Long numero) {
         this.cliente = cliente;
         this.numero = numero;
-        this.saldo = saldo;
+        this.operacoes = new ArrayList<>();
     }
 
     public String getCliente() {
@@ -22,16 +26,19 @@ class Conta {
         return numero;
     }
 
+    public List<Operacao> getOperacoes() {
+        return operacoes;
+    }
+
     public Double getSaldo() {
-        return saldo;
+        return this.operacoes.stream().mapToDouble(Operacao::getValor).sum();
     }
 
-    public void atualizarDados(String cliente, Double saldo) {
+    public void atualizarDados(String cliente) {
         this.cliente = cliente;
-        this.saldo = saldo;
     }
 
-    public void realizarOperacao(Double operacao) {
-        this.saldo += operacao;
+    public void realizarOperacao(Operacao operacao) {
+        this.operacoes.add(operacao);
     }
 }
