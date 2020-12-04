@@ -1,20 +1,20 @@
 package br.com.radix.banco;
 
 import javax.ws.rs.NotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class BancoService {
-    private static List<Conta> contas = new ArrayList<>();
+
+    private final BancoRepository repo = new BancoRepository();
 
     public List<Conta> listarContas() {
-        return contas;
+        return repo.listarContas();
     }
 
     public Conta obterConta(Long numero) {
 
-        Optional<Conta> contaEncontrada = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
+        Optional<Conta> contaEncontrada = repo.obterConta(numero);
         if (contaEncontrada.isPresent()) {
             return contaEncontrada.get();
         }
@@ -22,25 +22,25 @@ public class BancoService {
     }
 
     public void criarConta(Conta conta) {
-
-        contas.add(conta);
+        // TODO: REGRAS DE CRIACAO DE CONTA
+        repo.criarConta(conta);
     }
 
     public void editarConta(Long numero, String novoCliente) {
 
-        Optional<Conta> contaEditada = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
+        Optional<Conta> contaEditada = repo.obterConta(numero);
         contaEditada.orElseThrow(NotFoundException::new).atualizarDados(novoCliente);
     }
 
     public void deletarConta(Long numero) {
 
-        Optional<Conta> contaExcluida = contas.stream().filter(conta -> conta.getNumero().equals(numero)).findFirst();
-        contas.remove(contaExcluida.orElseThrow(NotFoundException::new));
+        Optional<Conta> contaExcluida = repo.obterConta(numero);
+        repo.deletarConta(contaExcluida.orElseThrow(NotFoundException::new));
     }
 
     public List<Operacao> listarOperacoes(Long numeroConta) {
 
-        Optional<Conta> contaEncontrada = contas.stream().filter(conta -> conta.getNumero().equals(numeroConta)).findFirst();
+        Optional<Conta> contaEncontrada = repo.obterConta(numeroConta);
         if (contaEncontrada.isPresent()) {
             return contaEncontrada.get().getOperacoes();
         }
@@ -48,8 +48,8 @@ public class BancoService {
     }
 
     public void realizarOperacao(Long numeroContaOrigem, Long numeroContaDestino, Double valor) {
-        Optional<Conta> contaOrigem = contas.stream().filter(conta -> conta.getNumero().equals(numeroContaOrigem)).findFirst();
-        Optional<Conta> contaDestino = contas.stream().filter(conta -> conta.getNumero().equals(numeroContaDestino)).findFirst();
+        Optional<Conta> contaOrigem = repo.obterConta(numeroContaOrigem);
+        Optional<Conta> contaDestino = repo.obterConta(numeroContaDestino);
 
         if (!contaOrigem.isPresent()) {
             throw new NotFoundException();
