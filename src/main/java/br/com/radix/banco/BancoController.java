@@ -15,11 +15,16 @@ import java.util.List;
 import java.util.Optional;
 
 class OperacaoRequest {
-    private Long numeroConta;
+    private Long numeroContaOrigem;
+    private Long numeroContaDestino;
     private Double valor;
 
-    public Long getNumeroConta() {
-        return numeroConta;
+    public Long getNumeroContaOrigem() {
+        return numeroContaOrigem;
+    }
+
+    public Long getNumeroContaDestino() {
+        return numeroContaDestino;
     }
 
     public Double getValor() {
@@ -81,8 +86,15 @@ public class BancoController {
     @Path("/operacao")
     @Produces(MediaType.APPLICATION_JSON)
     public Response realizarOperacao(OperacaoRequest operacaoRequest) {
-        Optional<Conta> contaOptional = contas.stream().filter(conta -> conta.getNumero().equals(operacaoRequest.getNumeroConta())).findFirst();
-        contaOptional.ifPresent(conta -> conta.realizarOperacao(operacaoRequest.getValor()));
+        Optional<Conta> contaOrigem = contas.stream().filter(conta -> conta.getNumero().equals(operacaoRequest.getNumeroContaOrigem())).findFirst();
+        Optional<Conta> contaDestino = contas.stream().filter(conta -> conta.getNumero().equals(operacaoRequest.getNumeroContaDestino())).findFirst();
+
+        if (contaDestino.isPresent()) {
+            contaOrigem.ifPresent(conta -> conta.realizarOperacao(-operacaoRequest.getValor()));
+            contaDestino.ifPresent(conta -> conta.realizarOperacao(operacaoRequest.getValor()));
+        } else {
+            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacaoRequest.getValor()));
+        }
         return Response.ok().build();
     }
 }
