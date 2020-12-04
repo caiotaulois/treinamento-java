@@ -8,10 +8,6 @@ class Conta {
     private Long numero;
     private List<Operacao> operacoes;
 
-    public Conta() {
-        this.operacoes = new ArrayList<>();
-    }
-
     public Conta(String cliente, Long numero) {
         this.cliente = cliente;
         this.numero = numero;
