@@ -34,7 +34,24 @@ class Conta {
         this.cliente = cliente;
     }
 
-    public void realizarOperacao(Operacao operacao) {
+    public void sacar(double valor) {
+        sacar(null, valor);
+    }
+
+    public void sacar(Long numeroContaDestino, double valor) {
+        realizarOperacao(this.numero, numeroContaDestino, -valor);
+    }
+
+    public void depositar(double valor) {
+        depositar(this.numero, valor);
+    }
+
+    public void depositar(Long numeroContaOrigem, double valor) {
+        realizarOperacao(numeroContaOrigem, this.numero, valor);
+    }
+
+    private void realizarOperacao(Long numeroContaOrigem, Long numeroContaDestino, double valor) {
+        Operacao operacao = new Operacao(numeroContaOrigem, numeroContaDestino, valor);
         this.operacoes.add(operacao);
     }
 }

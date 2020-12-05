@@ -6,7 +6,15 @@ import java.util.Optional;
 
 public class BancoService {
 
-    private final BancoRepository repo = new BancoRepository();
+    private final BancoRepository repo;
+
+    public BancoService() {
+        repo = new BancoRepository();
+    }
+
+    public BancoService(BancoRepository repoInjetado) {
+        repo = repoInjetado;
+    }
 
     public List<Conta> listarContas() {
         return repo.listarContas();
@@ -55,13 +63,14 @@ public class BancoService {
             throw new NotFoundException();
         }
         if (contaDestino.isPresent()) {
-            Operacao operacaoSaque = new Operacao(contaOrigem.get().getNumero(), contaDestino.get().getNumero(), -valor);
-            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacaoSaque));
-            Operacao operacaoDeposito = new Operacao(contaOrigem.get().getNumero(), contaDestino.get().getNumero(), valor);
-            contaDestino.ifPresent(conta -> conta.realizarOperacao(operacaoDeposito));
+            contaOrigem.get().sacar(numeroContaDestino, valor);
+            contaDestino.get().depositar(numeroContaOrigem, valor);
         } else {
-            Operacao operacao = new Operacao(contaOrigem.get().getNumero(), null, valor);
-            contaOrigem.ifPresent(conta -> conta.realizarOperacao(operacao));
+            if (valor > 0.0) {
+                contaOrigem.get().depositar(valor);
+            } else {
+                contaOrigem.get().sacar(-valor);
+            }
         }
     }
 }
