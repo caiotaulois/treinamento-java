@@ -3,11 +3,33 @@ package br.com.radix.banco;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 
 public class BancoServiceTest {
+
+    @Test
+    public void listarSemContas() {
+        BancoRepository repo = Mockito.mock(BancoRepository.class);
+        Mockito.when(repo.listarContas()).thenReturn(Collections.emptyList());
+        BancoService service = new BancoService(repo);
+        assertEquals(Collections.emptyList(), service.listarContas());
+    }
+
+    @Test
+    public void listarContas() {
+        BancoRepository repo = Mockito.mock(BancoRepository.class);
+        List<Conta> contas = new ArrayList<>();
+        Conta conta = new Conta("cliente 1", 1L);
+        contas.add(conta);
+        Mockito.when(repo.listarContas()).thenReturn(contas);
+        BancoService service = new BancoService(repo);
+        assertEquals(contas, service.listarContas());
+    }
 
     @Test
     public void depositar() {
