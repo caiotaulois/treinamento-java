@@ -21,7 +21,6 @@ public class BancoService {
     }
 
     public Conta obterConta(Long numero) {
-
         Optional<Conta> contaEncontrada = repo.obterConta(numero);
         if (contaEncontrada.isPresent()) {
             return contaEncontrada.get();
@@ -35,19 +34,16 @@ public class BancoService {
     }
 
     public void editarConta(Long numero, String novoCliente) {
-
         Optional<Conta> contaEditada = repo.obterConta(numero);
         contaEditada.orElseThrow(NotFoundException::new).atualizarDados(novoCliente);
     }
 
     public void deletarConta(Long numero) {
-
         Optional<Conta> contaExcluida = repo.obterConta(numero);
         repo.deletarConta(contaExcluida.orElseThrow(NotFoundException::new));
     }
 
     public List<Operacao> listarOperacoes(Long numeroConta) {
-
         Optional<Conta> contaEncontrada = repo.obterConta(numeroConta);
         if (contaEncontrada.isPresent()) {
             return contaEncontrada.get().getOperacoes();
