@@ -10,4 +10,5 @@ public interface ProductService {
 
     Product get(Long id);
 
+    Product create(Product product);
 }
